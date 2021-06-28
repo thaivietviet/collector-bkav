@@ -23,14 +23,15 @@ public class BkavPortal {
     public List<File> downloadInvoiceFiles(String lookupAddress, String lookupCode, String savePath, LogService logService) {
 
         File file = new File(savePath);
-        if (!file.exists()){
+        if (!file.exists()) {
+            logService.logInfo("Khởi tạo thư mục lưu trữ: " + savePath);
             file.mkdirs();
         }
         Arrays.stream(Objects.requireNonNull(file.listFiles())).forEach(File::delete);
 
         try {
             logService.logInfo("Setup property for chrome driver");
-            System.setProperty("webdriver.chrome.driver", saveChromeDriver());
+            System.setProperty("webdriver.chrome.driver", copyChromeDriver());
 
             logService.logInfo("Setup options for chrome driver");
             WebDriver driver = new ChromeDriver(BrowserConfig.getChromeOptions(savePath));
@@ -72,27 +73,22 @@ public class BkavPortal {
         return getListFile(savePath, logService);
     }
 
-    private String saveChromeDriver() {
-        String pathDriver = "browser/chromedriver.exe";
-        String folderCopyChromeDriver = "browser";
-        String nameChromeDriver = "chromedriver.exe";
+    private String copyChromeDriver() throws IOException {
+        String chromeDriveFilePath = "browser/chromedriver.exe";
 
-        File file = new File(folderCopyChromeDriver);
-        if (!file.exists()) {
-            file.mkdirs();
+        File destinationFile = new File(chromeDriveFilePath);
+        if (destinationFile.exists()) {
+            return destinationFile.getAbsolutePath();
         }
 
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL url = classLoader.getResource(pathDriver);
-        File fileChromeDriver = new File(folderCopyChromeDriver + File.separator + nameChromeDriver);
-
-        try {
-            FileUtils.copyURLToFile(url, fileChromeDriver);
-        } catch (IOException e) {
-            e.printStackTrace();
+        URL chromeDriverSourceUrl = getClass().getClassLoader().getResource(chromeDriveFilePath);
+        if (chromeDriverSourceUrl == null) {
+            throw new IOException("Không tìm thấy file chrome driver.");
         }
 
-        return fileChromeDriver.getAbsolutePath();
+        FileUtils.copyURLToFile(chromeDriverSourceUrl, destinationFile);
+
+        return destinationFile.getAbsolutePath();
     }
 
     private void waitFileDownloadComplete(WebDriver driver, String savePath) {
