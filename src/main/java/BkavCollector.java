@@ -15,7 +15,7 @@ public class BkavCollector {
         LogService logService = new LogService();
 
         logService.logInfo("Start Bkav Collector.");
-
+        System.out.println("Start Bkav Collector.");
         RunCollectorCommand runCollectorCommand = null;
 
         try {
@@ -27,7 +27,7 @@ public class BkavCollector {
         }
 
         InvoiceDownloadInfo invoiceDownloadInfo = runCollectorCommand.getInvoiceDownloadInfo();
-        logService.logInfo("Start download invocie of collect job id: " + invoiceDownloadInfo.getCollectJobId());
+        logService.logInfo("Start download invoice of collect job id: " + invoiceDownloadInfo.getCollectJobId());
 
         CollectorApiService collectorApiService = new CollectorApiService(runCollectorCommand.getCollectorConfiguration());
         BkavPortal bkavPortal = new BkavPortal();
